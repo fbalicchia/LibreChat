@@ -12,6 +12,7 @@ const esModules = [
   'domutils',
   'entities',
   'htmlparser2',
+  'jose',
   'sanitize-html',
   'uuid',
 ].join('|');

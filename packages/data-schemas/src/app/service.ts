@@ -191,6 +191,8 @@ export const AppService = async (params?: {
   const mcpSettings = config.mcpSettings || null;
   const mcpAppSandbox = config.mcpAppSandbox ?? configDefaults.mcpAppSandbox;
   const actions = config.actions;
+  const a2aAgents = config.a2aAgents;
+  const a2aSettings = config.a2aSettings;
   const registration = config.registration ?? configDefaults.registration;
   const emailChange = config.emailChange;
   const interfaceConfig = await loadDefaultInterface({ config, configDefaults });
@@ -209,6 +211,8 @@ export const AppService = async (params?: {
     speech,
     actions,
     balance,
+    a2aAgents,
+    a2aSettings,
     skillSync,
     webSearch,
     githubCompare: config.githubCompare,

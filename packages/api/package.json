@@ -177,6 +177,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
+    "@a2a-js/sdk": "^1.2.1",
     "@langchain/langgraph-checkpoint": "^1.1.2",
     "@langchain/langgraph-checkpoint-mongodb": "^1.4.0",
     "@simplewebauthn/server": "^13.3.2",

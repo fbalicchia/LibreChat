@@ -1,4 +1,5 @@
 import { Providers, WebSearchToolDefinition, GitHubCompareToolDefinition } from '@librechat/agents';
+import { A2AAgentsSchema } from 'librechat-data-provider';
 import type {
   LoadToolDefinitionsParams,
   LoadToolDefinitionsDeps,
@@ -7,6 +8,7 @@ import type {
 import { toolkitExpansion, toolkitParent } from './toolkits/mapping';
 import { getToolDefinition } from './registry/definitions';
 import { getToolApprovalIdentity } from './approval';
+import { getA2AToolDefinitions } from '~/a2a/registry';
 import { loadToolDefinitions } from './definitions';
 import { formatMCPServerTools } from '~/mcp/tools';
 import { getToolApprovalName } from './approval';
@@ -269,6 +271,38 @@ describe('definitions.ts', () => {
         await loadToolDefinitions(params, deps);
 
         expect(mockGetActionToolDefinitions).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('A2A tool definitions', () => {
+      it('registers configured A2A agents as direct tools without touching MCP', async () => {
+        const agents = A2AAgentsSchema.parse({
+          textsql: {
+            agentCardUrl: 'https://agents.example.com/.well-known/agent-card.json',
+            description: 'Answers questions about sales data',
+          },
+        });
+        const deps: LoadToolDefinitionsDeps = {
+          getOrFetchMCPServerTools: mockGetOrFetchMCPServerTools,
+          isBuiltInTool: mockIsBuiltInTool,
+          getA2AToolDefinitions: (names) => getA2AToolDefinitions(agents, names),
+        };
+
+        const result = await loadToolDefinitions(
+          {
+            userId: 'user-123',
+            agentId: 'agent-123',
+            tools: ['a2a__textsql', 'a2a__removed'],
+          },
+          deps,
+        );
+
+        expect(result.toolDefinitions.map((def) => def.name)).toEqual(['a2a__textsql']);
+        expect(result.toolRegistry.get('a2a__textsql')).toMatchObject({
+          description: 'Answers questions about sales data',
+          allowed_callers: ['direct'],
+        });
+        expect(mockGetOrFetchMCPServerTools).not.toHaveBeenCalled();
       });
     });
 

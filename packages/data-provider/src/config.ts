@@ -65,6 +65,7 @@ import { fileConfigSchema } from './file-config';
 import { isActionTool } from './types/tools';
 import { apiBaseUrl } from './api-endpoints';
 import { FileSources } from './types/files';
+import { A2AAgentsSchema } from './a2a';
 import { MCPServersSchema } from './mcp';
 export {
   MAX_SUBAGENTS,
@@ -4021,6 +4022,14 @@ export const configSchema = z.object({
   cloudfront: cloudfrontConfigSchema,
   actions: z
     .object({
+      allowedDomains: z.array(z.string()).optional(),
+      allowedAddresses: allowedAddressesSchema,
+    })
+    .optional(),
+  a2aAgents: A2AAgentsSchema.optional(),
+  a2aSettings: z
+    .object({
+      /** Hosts an agent card may point its service URL at, beyond the card's own origin. */
       allowedDomains: z.array(z.string()).optional(),
       allowedAddresses: allowedAddressesSchema,
     })

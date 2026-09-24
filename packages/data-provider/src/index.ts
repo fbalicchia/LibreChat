@@ -30,6 +30,8 @@ export * from './families';
 export * from './mcp';
 export * from './mcp/appMime';
 export * from './mcp/csp';
+/* a2a */
+export * from './a2a';
 /* RBAC */
 export * from './permissions';
 export * from './roles';

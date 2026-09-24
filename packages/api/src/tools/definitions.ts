@@ -9,6 +9,7 @@ import { bindToolApproval, bindToolApprovalIdentity, getToolApprovalIdentity } f
 import { Providers, GitHubCompareToolName } from '@librechat/agents';
 import {
   Constants,
+  isA2ATool,
   isActionTool,
   splitMCPToolKey,
   normalizeServerName,
@@ -100,6 +101,8 @@ export interface LoadToolDefinitionsDeps {
     agentId: string,
     actionToolNames: string[],
   ) => Promise<ActionToolDefinition[]>;
+  /** Loads the definitions of configured A2A agent tools */
+  getA2AToolDefinitions?: (a2aToolNames: string[]) => ActionToolDefinition[];
 }
 
 export interface LoadToolDefinitionsResult {
@@ -148,6 +151,7 @@ export async function loadToolDefinitions(
     refreshMCPServerTools,
     isBuiltInTool,
     getActionToolDefinitions,
+    getA2AToolDefinitions,
   } = deps;
   const serverNameAliases = buildServerNameAliases(rawServerNames ?? []);
 
@@ -183,6 +187,7 @@ export async function loadToolDefinitions(
   const builtInToolDefs: ToolDefinition[] = [];
   let actionToolDefs: ToolDefinition[] = [];
   const actionToolNames: string[] = [];
+  const a2aToolNames: string[] = [];
   let expectedMCPToolCount = 0;
   let resolvedMCPToolCount = 0;
 
@@ -192,6 +197,11 @@ export async function loadToolDefinitions(
     }
     if (isActionTool(toolName)) {
       actionToolNames.push(toolName);
+      continue;
+    }
+
+    if (isA2ATool(toolName)) {
+      a2aToolNames.push(toolName);
       continue;
     }
 
@@ -387,6 +397,10 @@ export async function loadToolDefinitions(
         parameters: def.parameters,
       };
     });
+  }
+
+  if (a2aToolNames.length > 0 && getA2AToolDefinitions) {
+    actionToolDefs = actionToolDefs.concat(getA2AToolDefinitions(a2aToolNames));
   }
 
   const loadedTools = mcpToolDefs.map((def) =>

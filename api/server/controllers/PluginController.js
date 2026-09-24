@@ -4,6 +4,9 @@ const {
   checkPluginAuth,
   filterUniquePlugins,
   filterGitHubComparePlugins,
+  getA2APlugins,
+  checkPluginAuth,
+  filterUniquePlugins,
 } = require('@librechat/api');
 const { getCachedTools, setCachedTools } = require('~/server/services/Config');
 const { availableTools, toolkits } = require('~/app/clients/tools');
@@ -108,6 +111,10 @@ const getAvailableTools = async (req, res) => {
       }
 
       toolsOutput.push(checkPluginAuth(plugin) ? { ...plugin, authenticated: true } : plugin);
+    }
+
+    if (!isAssistantsRoute) {
+      toolsOutput.push(...getA2APlugins(appConfig?.a2aAgents));
     }
 
     res.status(200).json(toolsOutput);

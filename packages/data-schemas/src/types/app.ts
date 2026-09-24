@@ -114,6 +114,10 @@ export interface AppConfig {
   mcpSettings?: TCustomConfig['mcpSettings'] | null;
   /** Deployment-owned MCP App sandbox transport limits. */
   mcpAppSandbox?: TCustomConfig['mcpAppSandbox'];
+  /** A2A (Agent2Agent) agents exposed to agents as tools */
+  a2aAgents?: TCustomConfig['a2aAgents'];
+  /** A2A settings (service URL allowlist, etc.) */
+  a2aSettings?: TCustomConfig['a2aSettings'];
   /** File configuration */
   fileConfig?: TFileConfig;
   /** Secure image links configuration, enabled unless explicitly disabled */

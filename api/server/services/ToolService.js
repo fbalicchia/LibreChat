@@ -74,6 +74,8 @@ const {
   splitAssistantMCPToolResult,
   appendAssistantMCPAppArtifact,
   resolveMCPClientCapabilityProfile,
+  createA2ATools,
+  getA2AToolDefinitions,
 } = require('@librechat/api');
 const {
   Time,
@@ -86,6 +88,7 @@ const {
   AuthTypeEnum,
   EModelEndpoint,
   EToolResources,
+  isA2ATool,
   isActionTool,
   actionDelimiter,
   ImageVisionTool,
@@ -930,6 +933,9 @@ async function loadToolDefinitionsWrapper({
     if (isActionTool(tool)) {
       return actionsEnabled;
     }
+    if (isA2ATool(tool)) {
+      return areToolsEnabled;
+    }
     if (tool?.includes(Constants.mcp_delimiter)) {
       return areToolsEnabled && canUseMCP;
     }
@@ -1398,6 +1404,8 @@ async function loadToolDefinitionsWrapper({
       getOrFetchMCPServerTools,
       refreshMCPServerTools,
       getActionToolDefinitions,
+      getA2AToolDefinitions: (a2aToolNames) =>
+        getA2AToolDefinitions(appConfig?.a2aAgents, a2aToolNames),
     },
   );
 
@@ -2464,9 +2472,27 @@ async function loadToolsForExecution({
     : allowedNonSpecialToolNames;
 
   const actionToolNames = [];
+  const a2aToolNames = [];
   const regularToolNames = [];
   for (const name of allToolNamesToLoad) {
+    if (isA2ATool(name)) {
+      a2aToolNames.push(name);
+      continue;
+    }
     (isActionTool(name) ? actionToolNames : regularToolNames).push(name);
+  }
+
+  if (a2aToolNames.length > 0) {
+    allLoadedTools.push(
+      ...createA2ATools({
+        agents: appConfig?.a2aAgents,
+        settings: appConfig?.a2aSettings,
+        toolNames: a2aToolNames,
+        user: req.user,
+        body: runtimeRequestBody,
+        conversationId: conversationId ?? runtimeRequestBody?.conversationId,
+      }),
+    );
   }
 
   if (regularToolNames.length > 0) {
