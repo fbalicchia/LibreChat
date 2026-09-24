@@ -162,6 +162,8 @@ export const AppService = async (params?: {
   const mcpServersConfig = config.mcpServers || null;
   const mcpSettings = config.mcpSettings || null;
   const actions = config.actions;
+  const a2aAgents = config.a2aAgents;
+  const a2aSettings = config.a2aSettings;
   const registration = config.registration ?? configDefaults.registration;
   const interfaceConfig = await loadDefaultInterface({ config, configDefaults });
   const turnstileConfig = loadTurnstileConfig(config, configDefaults);
@@ -178,6 +180,8 @@ export const AppService = async (params?: {
     speech,
     actions,
     balance,
+    a2aAgents,
+    a2aSettings,
     skillSync,
     webSearch,
     mcpSettings,

@@ -515,6 +515,32 @@ actions:
 #     - 'host.docker.internal:8080'
 #     - '127.0.0.1:8080'
 
+# A2A (Agent2Agent) agents, offered in the agent builder as tools named `a2a__<key>`.
+# Agents speaking A2A v1.0 or v0.3 are both supported; the version is read from the card.
+# a2aAgents:
+#   textsql:
+#     title: 'Text to SQL'
+#     agentCardUrl: 'https://agents.example.com/textsql/.well-known/agent-card.json'
+#     # Optional: call this endpoint instead of the URL advertised by the card, for agents
+#     # behind a gateway that cannot rewrite their card.
+#     url: 'https://agents.example.com/textsql'
+#     # Optional: overrides the card description shown to the model.
+#     description: 'Answers questions about sales data by writing and running SQL.'
+#     headers:
+#       # Static credential, or the logged-in user's OpenID token:
+#       # Authorization: 'Bearer {{LIBRECHAT_OPENID_ACCESS_TOKEN}}'
+#       Authorization: 'Bearer ${TEXTSQL_A2A_TOKEN}'
+#       X-Session-Id: '{{LIBRECHAT_BODY_CONVERSATIONID}}'
+#     timeout: 120000   # ms, default 120000
+#     streaming: true   # set false to force blocking sends
+# a2aSettings:
+#   # Hosts a card may point its service URL at, beyond the card's own origin.
+#   allowedDomains:
+#     - 'agents.example.com'
+#   # SSRF exemptions for private agents, as for mcpSettings.
+#   allowedAddresses:
+#     - 'host.docker.internal:9000'
+
 # Example MCP Servers Object Structure
 # mcpServers:
 #   everything:

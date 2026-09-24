@@ -48,6 +48,7 @@ const {
   resolveAgentWorkspaceRestoreConfiguration,
   shouldValidateAgentWorkspaceDefaultBinding,
   validateAgentWorkspaceDefaultBinding,
+  isConfiguredA2ATool,
 } = require('@librechat/api');
 const {
   Time,
@@ -601,6 +602,7 @@ const getSubagentReferenceError = async (subagents, req, allowedMissingIds = new
  * @param {object} [params.user] - Requesting user for MCP server use permission checks
  * @param {{ canUseServers: (user?: object) => Promise<boolean> }} [params.mcpPermissionContext] - Request-scoped MCP permission context
  * @param {Record<string, unknown>} params.availableTools - Global non-MCP tool cache
+ * @param {import('librechat-data-provider').A2AAgentsConfig} [params.a2aAgents] - Configured A2A agents
  * @param {string[]} [params.existingTools] - Tools already persisted on the agent document
  * @param {Record<string, unknown>} [params.configServers] - Config-source MCP servers resolved from appConfig overrides
  * @returns {Promise<string[]>} Only the authorized subset of tools
@@ -615,6 +617,7 @@ const filterAuthorizedTools = async ({
   existingTools,
   configServers,
   resolvedServerNames,
+  a2aAgents,
 }) => {
   const filteredTools = [];
   let mcpServerConfigs;
@@ -636,7 +639,12 @@ const filterAuthorizedTools = async ({
     const isMCPTool = tool?.includes(Constants.mcp_delimiter) && !isActionToolName;
 
     if (!isMCPTool) {
-      if (availableTools[tool] || systemTools[tool] || isActionToolName) {
+      if (
+        availableTools[tool] ||
+        systemTools[tool] ||
+        isActionToolName ||
+        isConfiguredA2ATool(a2aAgents, tool)
+      ) {
         filteredTools.push(tool);
       }
       continue;
@@ -903,6 +911,7 @@ const createAgentHandler = async (req, res) => {
       availableTools,
       configServers,
       resolvedServerNames,
+      a2aAgents: req.config?.a2aAgents,
     });
     if (hasMCPTools) {
       agentData.mcpServerNames = Array.from(resolvedServerNames);
@@ -1327,6 +1336,7 @@ const updateAgentHandler = async (req, res) => {
             availableTools,
             configServers,
             resolvedServerNames,
+            a2aAgents: req.config?.a2aAgents,
           });
           const rejectedSet = new Set(newMCPTools.filter((t) => !approvedNew.includes(t)));
           if (rejectedSet.size > 0) {
@@ -1555,6 +1565,7 @@ const duplicateAgentHandler = async (req, res) => {
         existingTools: newAgentData.tools,
         configServers,
         resolvedServerNames,
+        a2aAgents: req.config?.a2aAgents,
       });
       /** When the registry is unavailable, `filterAuthorizedTools` grandfathers the
        *  source's tools without resolving them, so carry forward the source names those

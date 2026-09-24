@@ -73,6 +73,8 @@ export * from './agents';
 export * from './assistants';
 /* Actions */
 export * from './actions';
+/* A2A */
+export * from './a2a';
 /* Prompts */
 export * from './prompts';
 /* Projects */

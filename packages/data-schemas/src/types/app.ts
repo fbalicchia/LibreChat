@@ -102,6 +102,10 @@ export interface AppConfig {
   mcpConfig?: TCustomConfig['mcpServers'] | null;
   /** MCP settings (domain allowlist, etc.) */
   mcpSettings?: TCustomConfig['mcpSettings'] | null;
+  /** A2A (Agent2Agent) agents exposed to agents as tools */
+  a2aAgents?: TCustomConfig['a2aAgents'];
+  /** A2A settings (service URL allowlist, etc.) */
+  a2aSettings?: TCustomConfig['a2aSettings'];
   /** File configuration */
   fileConfig?: TFileConfig;
   /** Secure image links configuration, enabled unless explicitly disabled */

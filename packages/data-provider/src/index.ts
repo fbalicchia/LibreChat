@@ -23,6 +23,8 @@ export * from './generate';
 export * from './models';
 /* mcp */
 export * from './mcp';
+/* a2a */
+export * from './a2a';
 /* RBAC */
 export * from './permissions';
 export * from './roles';
