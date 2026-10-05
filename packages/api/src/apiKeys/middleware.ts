@@ -210,6 +210,14 @@ export function createCheckRemoteAgentAccess(deps: RemoteAgentAccessDependencies
   return createAgentAccessMiddleware(deps, (req) => req.body?.model || req.params?.model);
 }
 
+/**
+ * Reads the agent id from the `:agentId` path segment only: A2A bodies are JSON-RPC
+ * envelopes, so a `model` field in them must not select which agent is checked.
+ */
+export function createCheckAgentPathAccess(deps: RemoteAgentAccessDependencies): RequestHandler {
+  return createAgentAccessMiddleware(deps, (req) => req.params?.agentId);
+}
+
 export function createCheckAgentTriggerAccess(deps: RemoteAgentAccessDependencies): RequestHandler {
   return createAgentAccessMiddleware(deps, (req) => req.body?.target?.agentId);
 }

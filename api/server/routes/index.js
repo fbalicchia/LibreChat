@@ -41,6 +41,7 @@ const auth = require('./auth');
 const keys = require('./keys');
 const user = require('./user');
 const mcp = require('./mcp');
+const a2a = require('./a2a');
 const rum = require('./rum');
 const insights = require('./insights');
 
@@ -48,6 +49,7 @@ module.exports = {
   insights,
   rum,
   mcp,
+  a2a,
   auth,
   adminAuth,
   adminConfig,

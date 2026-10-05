@@ -2,7 +2,11 @@ import express from 'express';
 import request from 'supertest';
 import { Types } from 'mongoose';
 import { PermissionBits } from 'librechat-data-provider';
-import { createCheckAgentTriggerAccess, createCheckRemoteAgentAccess } from './middleware';
+import {
+  createCheckAgentPathAccess,
+  createCheckAgentTriggerAccess,
+  createCheckRemoteAgentAccess,
+} from './middleware';
 
 describe('createCheckRemoteAgentAccess', () => {
   it('preserves model-based authorization for existing remote agent routes', async () => {
@@ -72,5 +76,50 @@ describe('createCheckAgentTriggerAccess', () => {
     expect(response.status).toBe(400);
     expect(response.body.error.code).toBe('missing_model');
     expect(getAgent).not.toHaveBeenCalled();
+  });
+});
+
+describe('createCheckAgentPathAccess', () => {
+  it('authorizes the :agentId path segment, never a body model', async () => {
+    const getAgent = jest.fn(async () => ({ _id: new Types.ObjectId() }));
+    const checkAccess = createCheckAgentPathAccess({
+      getAgent,
+      getEffectivePermissions: jest.fn(async () => PermissionBits.VIEW),
+    });
+    const app = express();
+    app.use(express.json());
+    app.use((req, _res, next) => {
+      Object.assign(req, { user: { id: new Types.ObjectId().toString(), role: 'USER' } });
+      next();
+    });
+    app.post('/a2a/:agentId', checkAccess, (_req, res) => {
+      res.status(204).send();
+    });
+
+    const response = await request(app).post('/a2a/path-agent').send({ model: 'decoy-agent' });
+
+    expect(response.status).toBe(204);
+    expect(getAgent).toHaveBeenCalledWith({ id: 'path-agent' });
+    expect(getAgent).not.toHaveBeenCalledWith({ id: 'decoy-agent' });
+  });
+
+  it('denies an agent the key owner cannot view', async () => {
+    const checkAccess = createCheckAgentPathAccess({
+      getAgent: jest.fn(async () => ({ _id: new Types.ObjectId() })),
+      getEffectivePermissions: jest.fn(async () => 0),
+    });
+    const app = express();
+    app.use((req, _res, next) => {
+      Object.assign(req, { user: { id: new Types.ObjectId().toString(), role: 'USER' } });
+      next();
+    });
+    app.post('/a2a/:agentId', checkAccess, (_req, res) => {
+      res.status(204).send();
+    });
+
+    const response = await request(app).post('/a2a/private-agent').send({});
+
+    expect(response.status).toBe(403);
+    expect(response.body.error.code).toBe('access_denied');
   });
 });

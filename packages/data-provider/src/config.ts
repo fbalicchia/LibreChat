@@ -65,7 +65,7 @@ import { fileConfigSchema } from './file-config';
 import { isActionTool } from './types/tools';
 import { apiBaseUrl } from './api-endpoints';
 import { FileSources } from './types/files';
-import { A2AAgentsSchema } from './a2a';
+import { A2AAgentsSchema, a2aServerSchema } from './a2a';
 import { MCPServersSchema } from './mcp';
 export {
   MAX_SUBAGENTS,
@@ -3135,6 +3135,8 @@ export type TStartupConfig = {
   socialLogins?: string[];
   langfuseFanoutEnabled?: boolean;
   langfuseConnectionAccess?: boolean;
+  /** Agents with remote access are served over A2A (`a2aSettings.server.enabled`). */
+  a2aServerEnabled?: boolean;
   insightsEnabled?: boolean;
   /** Manual context compaction, gated by the same `summarization.enabled`
    *  switch that governs the automatic detour. */
@@ -4032,6 +4034,8 @@ export const configSchema = z.object({
       /** Hosts an agent card may point its service URL at, beyond the card's own origin. */
       allowedDomains: z.array(z.string()).optional(),
       allowedAddresses: allowedAddressesSchema,
+      /** Serves agents with remote access as A2A agents at `/api/a2a/agents/:agentId`. */
+      server: a2aServerSchema.optional(),
     })
     .optional(),
   registration: z

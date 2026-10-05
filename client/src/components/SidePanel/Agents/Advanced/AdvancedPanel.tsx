@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { ChevronLeft, Check, Copy } from 'lucide-react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { Button, TooltipAnchor, labelVariants, useToastContext } from '@librechat/client';
+import { getA2AAgentCardUrl } from 'librechat-data-provider';
 import type { AgentForm } from '~/common';
+import { useGetStartupConfig } from '~/data-provider';
 import { useAgentPanelContext } from '~/Providers';
 import MaxAgentSteps from './MaxAgentSteps';
 import { groupHeadingClass } from './ui';
 import AgentChain from './AgentChain';
 import { useLocalize } from '~/hooks';
+import CopyField from './CopyField';
 import { Panel } from '~/common';
 
 export default function AdvancedPanel() {
@@ -17,8 +20,7 @@ export default function AdvancedPanel() {
   const currentAgentId = watch('id');
   const chainIds = watch('agent_ids');
   const [copied, setCopied] = useState(false);
-
-  const { setActivePanel } = useAgentPanelContext();
+  const { data: startupConfig } = useGetStartupConfig();
 
   const handleCopyAgentId = async () => {
     if (!currentAgentId) return;
@@ -31,6 +33,13 @@ export default function AdvancedPanel() {
       showToast({ message: localize('com_ui_error'), status: 'error' });
     }
   };
+
+  const { setActivePanel } = useAgentPanelContext();
+
+  const a2aCardUrl =
+    currentAgentId && startupConfig?.a2aServerEnabled === true
+      ? getA2AAgentCardUrl(startupConfig.serverDomain, currentAgentId)
+      : undefined;
 
   return (
     <div className="mb-1 flex w-full flex-col gap-4 text-sm">
@@ -96,6 +105,14 @@ export default function AdvancedPanel() {
                 </Button>
               }
             />
+            {a2aCardUrl && (
+              <CopyField
+                label={localize('com_ui_a2a_card_url')}
+                value={a2aCardUrl}
+                copyLabel={localize('com_ui_a2a_card_url_copy')}
+                copiedMessage={localize('com_ui_a2a_card_url_copied')}
+              />
+            )}
           </div>
         )}
       </div>
