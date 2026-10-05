@@ -545,6 +545,18 @@ actions:
 #   # SSRF exemptions for private agents, as for mcpSettings.
 #   allowedAddresses:
 #     - 'host.docker.internal:9000'
+#   # Serve LibreChat agents as A2A agents, one per agent at
+#   # ${DOMAIN_SERVER}/api/a2a/agents/<agent_id> (card: .../.well-known/agent-card.json).
+#   # Callers use the same credentials and remote-access sharing as the agents API
+#   # (Agent API key or OIDC token); the agent builder shows the card URL under Advanced.
+#   server:
+#     enabled: true
+#     # Earlier messages of the same A2A context replayed to the agent (0 = none).
+#     maxHistoryMessages: 20
+#     # Milliseconds one agent run may take before its task fails.
+#     runTimeoutMs: 300000
+#     # How LibreChat reaches its own agents API; defaults to http://localhost:$PORT.
+#     # internalBaseURL: 'http://127.0.0.1:3080'
 
 # Example MCP Servers Object Structure
 # mcpServers:

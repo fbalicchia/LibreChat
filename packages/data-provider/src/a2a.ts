@@ -49,6 +49,42 @@ export const A2AAgentsSchema = z.record(
 export type A2AAgentConfig = z.infer<typeof A2AAgentConfigSchema>;
 export type A2AAgentsConfig = z.infer<typeof A2AAgentsSchema>;
 
+/** Path prefix under which each served agent gets its own A2A endpoint. */
+export const A2A_SERVER_PATH = '/api/a2a/agents';
+
+/** Default time one served agent run may take before its task fails, in milliseconds. */
+export const A2A_SERVER_DEFAULT_RUN_TIMEOUT_MS = 300_000;
+
+export const a2aServerSchema = z.object({
+  /** Off by default: agents are only reachable over A2A when this is `true`. */
+  enabled: z.boolean().default(false),
+  /** Earlier messages of the same A2A context replayed to the agent; `0` makes every task standalone. */
+  maxHistoryMessages: z.number().int().min(0).max(200).default(20),
+  runTimeoutMs: z
+    .number()
+    .int()
+    .min(1_000)
+    .max(3_600_000)
+    .default(A2A_SERVER_DEFAULT_RUN_TIMEOUT_MS),
+  /**
+   * Base URL the server uses to reach its own agents API. Defaults to `http://127.0.0.1:$PORT`;
+   * set it when LibreChat listens on another interface or behind a socket.
+   */
+  internalBaseURL: z.string().url().optional(),
+});
+
+export type A2AServerConfig = z.infer<typeof a2aServerSchema>;
+
+/** The URL an A2A client reads a served agent's card from. */
+export function getA2AAgentCardUrl(serverDomain: string, agentId: string): string {
+  return `${getA2AAgentUrl(serverDomain, agentId)}/.well-known/agent-card.json`;
+}
+
+/** The JSON-RPC endpoint of a served agent. */
+export function getA2AAgentUrl(serverDomain: string, agentId: string): string {
+  return `${serverDomain.replace(/\/+$/, '')}${A2A_SERVER_PATH}/${encodeURIComponent(agentId)}`;
+}
+
 /** Tolerates null entries: agent tool lists arrive from untrusted request bodies. */
 export function isA2ATool(toolName: string | null | undefined): boolean {
   return (

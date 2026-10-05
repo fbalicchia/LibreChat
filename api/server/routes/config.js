@@ -317,6 +317,7 @@ router.get('/', async function (req, res) {
       langfuseConnectionAccess,
       insightsEnabled: isEnabled(process.env.ENABLE_INSIGHTS),
       compactionEnabled: appConfig?.summarization?.enabled !== false,
+      a2aServerEnabled: appConfig?.a2aSettings?.server?.enabled === true,
       ...(codeEnvironmentDecisionVersion != null ? { codeEnvironmentDecisionVersion } : {}),
       ...codeEnvironmentMoveCapabilities,
       ...(codeEnvironmentTransitionVersion != null ? { codeEnvironmentTransitionVersion } : {}),

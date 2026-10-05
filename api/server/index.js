@@ -13,6 +13,7 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const mongoSanitize = require('express-mongo-sanitize');
 const { logger, runAsSystem } = require('@librechat/data-schemas');
+const { A2A_SERVER_PATH } = require('librechat-data-provider');
 const {
   isEnabled,
   issueCsp,
@@ -451,6 +452,7 @@ const startServer = async () => {
 
   app.use('/api/tags', routes.tags);
   app.use('/api/mcp', routes.mcp);
+  app.use(A2A_SERVER_PATH, routes.a2a);
   app.use('/api/rum', routes.rum);
 
   app.use('/metrics', metricsRouter);
